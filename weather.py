@@ -19,14 +19,6 @@ sec_key = "百度语音合成secret key"
 def readconf():
     cf = ConfigParser.ConfigParser()
     cf.read("weather.conf")
-    secs = cf.sections()
-    print 'sections:', secs
- 
-    opts = cf.options("hefeng")
-    print 'options:', opts
-
-    kvs = cf.items("hefeng")
-    print 'hefeng:', kvs
 
     global heKey
     heKey = cf.get('hefeng', 'hekey')
@@ -84,13 +76,15 @@ def get_wat():
     h= city_weather['pop']
     return "天气预报  今天是 {}   最高温度{} 最低温度{} 日间天气{} 夜间天气{} {}{} 降水概率百分之{}".format(e,a,b,c,d,f,g,h)
 
-readconf()
-token=get_token()
-weather=get_wat() 
+if __name__ == '__main__':
+
+    readconf()
+    token=get_token()
+    weather=get_wat() 
 #tts
-url = "http://tsn.baidu.com/text2audio?tex="+weather+"&lan=zh&per=0&pit=1&spd=4&cuid=b827ebcac3a2&ctp=1&tok="+token
+    url = "http://tsn.baidu.com/text2audio?tex="+weather+"&lan=zh&per=0&pit=1&spd=4&cuid=b827ebcac3a2&ctp=1&tok="+token
 #播放
-try:
-    os.system('/usr/bin/mplayer -ao alsa:device=hw=1,0 "%s"' %(url))
-except Exception as e:
-    print('Exception',e)
+    try:
+        os.system('/usr/bin/mplayer -ao alsa:device=hw=1,0 "%s"' %(url))
+    except Exception as e:
+        print('Exception',e)
