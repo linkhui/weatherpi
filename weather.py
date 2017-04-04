@@ -5,10 +5,41 @@ import urllib2,json
 from datetime import date
 from os import path
 import sys
+import ConfigParser
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
+
+heKey = '和风key'
+city = "CN101021200"  #上海徐汇天气代码   
+
+api_key = "百度语音合成api key"
+sec_key = "百度语音合成secret key"
+
+def readconf():
+    cf = ConfigParser.ConfigParser()
+    cf.read("weather.conf")
+    secs = cf.sections()
+    print 'sections:', secs
+ 
+    opts = cf.options("hefeng")
+    print 'options:', opts
+
+    kvs = cf.items("hefeng")
+    print 'hefeng:', kvs
+
+    global heKey
+    heKey = cf.get('hefeng', 'hekey')
+    global city
+    city = cf.get('hefeng', 'city')
+    global api_key
+    api_key = cf.get('baidu','apikey')
+    global sec_key
+    sec_key = cf.get('baidu','secretkey')
+    print heKey, city, api_key,sec_key
+
 #返回和风天气数据
-def get_city_weather(index, search_type=1):
+def get_city_weather(search_type=1):
     if search_type == 1:
         search = 'weather'
     elif search_type == 0:
@@ -16,8 +47,8 @@ def get_city_weather(index, search_type=1):
     else:
         return -1
     heAPI = 'https://free-api.heweather.com/v5/'
-    heKey = '和风key'
-    url_weather = heAPI + 'forecast'+'?city='+index+'&key='+heKey
+    global heKey,city
+    url_weather = heAPI + 'forecast'+'?city='+city+'&key='+heKey
     print url_weather
     req = urllib2.Request(url_weather)
     resp = urllib2.urlopen(req)
@@ -33,8 +64,8 @@ def get_city_weather(index, search_type=1):
     return weather
 #获取百度语音token
 def get_token():
-    api_key = "百度语音合成api key"
-    sec_key = "百度语音合成secret key"
+    global api_key
+    global sec_key
     url = url="https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&client_id="+api_key+"&client_secret="+sec_key
     req = urllib2.Request(url)
     resp = urllib2.urlopen(req)
@@ -42,8 +73,7 @@ def get_token():
     return json.loads(context)['access_token']
 #获取需要的数据
 def get_wat():
-    city_id = "CN101021200"  #上海徐汇天气代码   
-    city_weather = get_city_weather(city_id)
+    city_weather = get_city_weather()
     a= city_weather['tmp']['max']
     b= city_weather['tmp']['min']
     c= city_weather['cond']['txt_d']
@@ -53,6 +83,8 @@ def get_wat():
     g= city_weather['wind']['sc']
     h= city_weather['pop']
     return "天气预报  今天是 {}   最高温度{} 最低温度{} 日间天气{} 夜间天气{} {}{} 降水概率百分之{}".format(e,a,b,c,d,f,g,h)
+
+readconf()
 token=get_token()
 weather=get_wat() 
 #tts
