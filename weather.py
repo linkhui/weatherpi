@@ -6,12 +6,13 @@ from datetime import date
 from os import path
 import sys
 import ConfigParser
+import platform
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 heKey = '和风key'
-city = "CN101021200"  #上海徐汇天气代码   
+city = "CN101021200"  #上海徐汇天气代码
 
 api_key = "百度语音合成api key"
 sec_key = "百度语音合成secret key"
@@ -40,17 +41,17 @@ def get_city_weather(search_type=1):
         return -1
     heAPI = 'https://free-api.heweather.com/v5/'
     global heKey,city
-    url_weather = heAPI + 'forecast'+'?city='+city+'&key='+heKey
+    url_weather = heAPI + 'weather'+'?city='+city+'&key='+heKey
     print url_weather
     req = urllib2.Request(url_weather)
     resp = urllib2.urlopen(req)
     context = resp.read()
     weather_json = json.loads(context, encoding='utf-8')
-    fp = open("/home/pi/python/weatherpi/test.txt", 'w')
+    fp = open("./test.txt", 'w')
     fp.write(context)
     fp.close()
     if search_type == 1:
-        weather = weather_json["HeWeather5"][0]['daily_forecast'][0]
+        weather = weather_json["HeWeather5"][0]['daily_forecast'][1]
     else:
         weather = weather_json
     return weather
@@ -76,15 +77,32 @@ def get_wat():
     h= city_weather['pop']
     return "天气预报  今天是 {}   最高温度{} 最低温度{} 日间天气{} 夜间天气{} {}{} 降水概率百分之{}".format(e,a,b,c,d,f,g,h)
 
+def UsePlatform():
+    sysstr = platform.system()
+    if(sysstr =="Windows"):
+        print ("Call Windows tasks")
+    elif(sysstr == "Linux"):
+        print ("Call Linux tasks")
+    elif(sysstr == "Darwin"):
+        print ("Call Mac tasks")
+    else:
+        print ("Other System tasks")
+    print sysstr
+    return sysstr
+
 if __name__ == '__main__':
 
     readconf()
     token=get_token()
-    weather=get_wat() 
+    weather=get_wat()
 #tts
     url = "http://tsn.baidu.com/text2audio?tex="+weather+"&lan=zh&per=0&pit=1&spd=4&cuid=b827ebcac3a2&ctp=1&tok="+token
+    print url
 #播放
     try:
-        os.system('/usr/bin/mplayer -ao alsa:device=hw=1,0 "%s"' %(url))
+        if UsePlatform() == "Darwin" :
+            os.system('mplayer "%s"' %(url))
+        else:
+            os.system('/usr/bin/mplayer -ao alsa:device=hw=1,0 "%s"' %(url))
     except Exception as e:
         print('Exception',e)
