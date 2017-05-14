@@ -46,7 +46,7 @@ def get_city_weather(search_type=1):
     resp = urllib2.urlopen(req)
     context = resp.read()
     weather_json = json.loads(context, encoding='utf-8')
-    fp = open("/home/pi/python/weather/test.txt", 'w')
+    fp = open("/home/pi/python/weatherpi/test.txt", 'w')
     fp.write(context)
     fp.close()
     if search_type == 1:
