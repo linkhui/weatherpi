@@ -89,4 +89,7 @@ ENV/
 .ropeproject
 
 weather.conf
-test.txx
+test.txt
+*.pcm
+*.wav
+*.mp3

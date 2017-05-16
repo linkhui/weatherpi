@@ -90,8 +90,7 @@ def UsePlatform():
     print sysstr
     return sysstr
 
-if __name__ == '__main__':
-
+def broadcast():
     readconf()
     token=get_token()
     weather=get_wat()
@@ -106,3 +105,6 @@ if __name__ == '__main__':
             os.system('/usr/bin/mplayer -ao alsa:device=hw=1,0 "%s"' %(url))
     except Exception as e:
         print('Exception',e)
+
+if __name__ == '__main__':
+    broadcast()
